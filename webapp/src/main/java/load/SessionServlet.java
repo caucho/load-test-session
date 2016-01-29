@@ -6,9 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Enumeration;
 
 @WebServlet("/session")
@@ -44,7 +42,7 @@ public class SessionServlet extends HttpServlet
       }
     }
 
-    size(session);
+    estimateSize(session);
 
     resp.getWriter().write(Integer.toString(nullCounter));
   }
@@ -67,37 +65,36 @@ public class SessionServlet extends HttpServlet
     }
 
     if (!isOrigin)
-      System.out.println("SessionServlet.doGet ["
-                         + id
-                         + "] -> ["
-                         + appServer
-                         + "]");
+      System.out.println("doGet [" + id + "] -> [" + appServer + "]");
 
   }
 
-  private void size(HttpSession session)
+  private void estimateSize(HttpSession session)
   {
     try {
-      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-      ObjectOutputStream out = new ObjectOutputStream(buffer);
-
       Enumeration<String> attributes = session.getAttributeNames();
+
+      int size = 0;
 
       while (attributes.hasMoreElements()) {
         String s = attributes.nextElement();
-        out.writeObject(s);
-        out.writeObject(session.getAttribute(s));
+        size += s.length();
+
+        Object obj = session.getAttribute(s);
+
+        if (obj instanceof byte[]) {
+          size += ((byte[]) obj).length;
+        }
+        else {
+          System.out.println("estimateSize unexpected value "
+                             + obj);
+        }
       }
-
-      out.flush();
-
-      int size = buffer.toByteArray().length;
 
       if (size > maxSize) {
         maxSize = size;
 
-        System.out.println("SessionServlet.max-size in bytes: " + maxSize);
+        System.out.println("max-size in bytes: " + maxSize);
       }
     } catch (Exception e) {
       e.printStackTrace();
