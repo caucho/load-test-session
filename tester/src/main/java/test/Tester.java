@@ -18,7 +18,7 @@ public class Tester implements Runnable
    *
    * max byte[] in the session will be 1024 * m * request-number
    */
-;  private final static int m = 320;
+  private final static int m = 8;
 
   private long n = 1024 * 1024 * requestCount;
 
