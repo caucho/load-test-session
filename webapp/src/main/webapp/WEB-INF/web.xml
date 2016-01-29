@@ -1,0 +1,10 @@
+<web-app xmlns="http://caucho.com/ns/resin">
+
+  <session-config>
+    <session-timeout>2</session-timeout>
+    <!--always-save-session>true</always-save-session>
+    <always-load-session>true</always-load-session-->
+  </session-config>
+
+</web-app>
+
