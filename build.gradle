@@ -16,6 +16,6 @@ project(':webapp') {
   apply plugin: 'war'
 
   dependencies {
-    providedCompile 'javax.servlet:javax.servlet-api:3.0.1'
+    compile 'javax.servlet:javax.servlet-api:3.0.1'
   }
 }

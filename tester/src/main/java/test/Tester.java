@@ -2,6 +2,7 @@ package test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,7 +16,7 @@ public class Tester implements Runnable
 
   /**
    * session item size multiplier used in kb
-   *
+   * <p/>
    * max byte[] in the session will be 1024 * m * request-number
    */
   private final static int m = 2;
@@ -57,8 +58,39 @@ public class Tester implements Runnable
 
   public void test(Session session) throws IOException
   {
-    URL url = _urls[(int) (System.currentTimeMillis() % _urls.length)];
+    final int j = (int) (System.currentTimeMillis() % _urls.length);
 
+    try {
+      test(session, _urls[j]);
+    } catch (ConnectException e) {
+
+      int i = j + 1;
+
+      if (i == _urls.length)
+        i = 0;
+
+      while (i != j) {
+        try {
+          test(session, _urls[i]);
+          break;
+        } catch (ConnectException ce) {
+
+        }
+
+        i++;
+
+        if (i == _urls.length)
+          i = 0;
+      }
+
+      if (i == j) {
+        throw new IOException("all servers appear to be down");
+      }
+    }
+  }
+
+  public void test(Session session, URL url) throws IOException
+  {
     HttpURLConnection http = (HttpURLConnection) url.openConnection();
 
     String sessionId = session.getSessionId();
