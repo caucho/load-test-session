@@ -58,35 +58,27 @@ public class Tester implements Runnable
 
   public void test(Session session) throws IOException
   {
-    final int j = (int) (System.currentTimeMillis() % _urls.length);
+    int i = (int) (System.currentTimeMillis() % _urls.length);
 
-    try {
-      test(session, _urls[j]);
-    } catch (ConnectException e) {
+    int l = 0;
 
-      int i = j + 1;
+    while (l++ < _urls.length) {
+      try {
+        test(session, _urls[i]);
+
+        return;
+      } catch (ConnectException ce) {
+
+      }
+
+      i++;
 
       if (i == _urls.length)
         i = 0;
-
-      while (i != j) {
-        try {
-          test(session, _urls[i]);
-          break;
-        } catch (ConnectException ce) {
-
-        }
-
-        i++;
-
-        if (i == _urls.length)
-          i = 0;
-      }
-
-      if (i == j) {
-        throw new IOException("all servers appear to be down");
-      }
     }
+
+    System.err.println("all servers appear to be down");
+    System.exit(-1);
   }
 
   public void test(Session session, URL url) throws IOException
